@@ -745,7 +745,7 @@ public class Handler {
     final Looper mLooper;
     final Callback mCallback;
     final boolean mAsynchronous;
-    
+    //干嘛的？？？
     IMessenger mMessenger;
 
     private static final class BlockingRunnable implements Runnable {
