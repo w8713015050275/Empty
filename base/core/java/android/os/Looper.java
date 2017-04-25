@@ -87,6 +87,7 @@ public final class Looper {
         if (sThreadLocal.get() != null) {
             throw new RuntimeException("Only one Looper may be created per thread");
         }
+        //给当前线程的ThreadLocal添加Looper对象
         sThreadLocal.set(new Looper(quitAllowed));
     }
 
