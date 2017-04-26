@@ -185,6 +185,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
     private static final int MAXIMUM_POOL_SIZE = CPU_COUNT * 2 + 1;
     private static final int KEEP_ALIVE = 1;
 
+    //线程工厂
     private static final ThreadFactory sThreadFactory = new ThreadFactory() {
         private final AtomicInteger mCount = new AtomicInteger(1);
 
@@ -193,12 +194,14 @@ public abstract class AsyncTask<Params, Progress, Result> {
         }
     };
 
+    //FIFO队列
     private static final BlockingQueue<Runnable> sPoolWorkQueue =
             new LinkedBlockingQueue<Runnable>(128);
 
     /**
      * An {@link Executor} that can be used to execute tasks in parallel.
      */
+    //如何去构造一个线程池
     public static final Executor THREAD_POOL_EXECUTOR
             = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE,
                     TimeUnit.SECONDS, sPoolWorkQueue, sThreadFactory);
@@ -212,6 +215,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
     private static final int MESSAGE_POST_RESULT = 0x1;
     private static final int MESSAGE_POST_PROGRESS = 0x2;
 
+    //AsyncTask 默认的执行者
     private static volatile Executor sDefaultExecutor = SERIAL_EXECUTOR;
     private static InternalHandler sHandler;
 
@@ -223,11 +227,13 @@ public abstract class AsyncTask<Params, Progress, Result> {
     private final AtomicBoolean mCancelled = new AtomicBoolean();
     private final AtomicBoolean mTaskInvoked = new AtomicBoolean();
 
+    //实现了execute方法
     private static class SerialExecutor implements Executor {
         final ArrayDeque<Runnable> mTasks = new ArrayDeque<Runnable>();
         Runnable mActive;
 
         public synchronized void execute(final Runnable r) {
+            //这个Runnable就是mFuture,mFuture 引用了mWorker,最终执行mWorker的call()
             mTasks.offer(new Runnable() {
                 public void run() {
                     try {
@@ -244,6 +250,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
 
         protected synchronized void scheduleNext() {
             if ((mActive = mTasks.poll()) != null) {
+                //调用Executor的execute()
                 THREAD_POOL_EXECUTOR.execute(mActive);
             }
         }
@@ -278,6 +285,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
     }
 
     /** @hide */
+    //设置默认的执行器
     public static void setDefaultExecutor(Executor exec) {
         sDefaultExecutor = exec;
     }
@@ -287,17 +295,22 @@ public abstract class AsyncTask<Params, Progress, Result> {
      */
     public AsyncTask() {
         mWorker = new WorkerRunnable<Params, Result>() {
+            //Callback的call() 回调
             public Result call() throws Exception {
+                //调用该Callable了
                 mTaskInvoked.set(true);
 
                 Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
                 //noinspection unchecked
+                //
                 Result result = doInBackground(mParams);
                 Binder.flushPendingCommands();
+                //
                 return postResult(result);
             }
         };
 
+        //构造FutureTask ,去回调Callback的call()
         mFuture = new FutureTask<Result>(mWorker) {
             @Override
             protected void done() {
@@ -548,6 +561,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
      */
     @MainThread
     public final AsyncTask<Params, Progress, Result> execute(Params... params) {
+        //使用默认的Executor
         return executeOnExecutor(sDefaultExecutor, params);
     }
 
@@ -604,6 +618,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
         onPreExecute();
 
         mWorker.mParams = params;
+        //执行SERIAL_EXECUTOR的execute():调度执行任务
         exec.execute(mFuture);
 
         return this;
