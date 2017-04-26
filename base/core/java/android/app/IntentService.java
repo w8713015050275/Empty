@@ -27,20 +27,26 @@ import android.os.Message;
 /**
  * IntentService is a base class for {@link Service}s that handle asynchronous
  * requests (expressed as {@link Intent}s) on demand.  Clients send requests
- * through {@link android.content.Context#startService(Intent)} calls; the
+ * through {@link android.content.Context#startService(Intent)} calls 客户端通过
+ * startService发送请求; the
  * service is started as needed, handles each Intent in turn using a worker
- * thread, and stops itself when it runs out of work.
+ * thread,service使用工作线程处理Intent， and stops itself when it runs out of work
+ * 当工作结束后自动停止service.
  *
  * <p>This "work queue processor" pattern is commonly used to offload tasks
  * from an application's main thread.  The IntentService class exists to
  * simplify this pattern and take care of the mechanics.  To use it, extend
- * IntentService and implement {@link #onHandleIntent(Intent)}.  IntentService
+ * IntentService and implement {@link #onHandleIntent(Intent)} 要用这个service
+ * 就要实现onHandleIntent（Intent）方法.  IntentService
  * will receive the Intents, launch a worker thread, and stop the service as
- * appropriate.
+ * appropriate. IntentService 会接收intent，启动工作线程，并在何时的时候停止service.
  *
- * <p>All requests are handled on a single worker thread -- they may take as
- * long as necessary (and will not block the application's main loop), but
- * only one request will be processed at a time.
+ * <p>All requests are handled on a single worker thread
+ * 所有的请求都在一个工作线程里执行
+ * -- they may take as long as necessary (and will not block the application's main loop),
+ * 执行时间可能很长，但不会阻塞主线程
+ * but only one request will be processed at a time.
+ * 某一时刻只能处理一个请求（说明是串行的）
  *
  * <div class="special reference">
  * <h3>Developer Guides</h3>
@@ -50,7 +56,10 @@ import android.os.Message;
  *
  * @see android.os.AsyncTask
  */
+
+//继承自Service的抽象类
 public abstract class IntentService extends Service {
+    //Looper + Handler
     private volatile Looper mServiceLooper;
     private volatile ServiceHandler mServiceHandler;
     private String mName;
@@ -63,7 +72,9 @@ public abstract class IntentService extends Service {
 
         @Override
         public void handleMessage(Message msg) {
+            //只要有msg过来就处理,根据Intent区分
             onHandleIntent((Intent)msg.obj);
+            //根据startId 去停止服务，可能有多个client调用了startService()
             stopSelf(msg.arg1);
         }
     }
@@ -108,7 +119,9 @@ public abstract class IntentService extends Service {
         HandlerThread thread = new HandlerThread("IntentService[" + mName + "]");
         thread.start();
 
+        //使用HandlerThread 线程的Looper
         mServiceLooper = thread.getLooper();
+        //使用线程的Looper构造Handler
         mServiceHandler = new ServiceHandler(mServiceLooper);
     }
 
@@ -134,6 +147,7 @@ public abstract class IntentService extends Service {
 
     @Override
     public void onDestroy() {
+        //停止线程
         mServiceLooper.quit();
     }
 
