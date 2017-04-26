@@ -552,6 +552,7 @@ public abstract class Service extends ContextWrapper implements ComponentCallbac
      *  
      * @see #stopSelfResult(int)
      */
+    //立刻停止服务
     public final void stopSelf() {
         stopSelf(-1);
     }
@@ -561,6 +562,7 @@ public abstract class Service extends ContextWrapper implements ComponentCallbac
      *  
      * @see #stopSelfResult
      */
+    //当startId 等于最新的id时才会停止服务
     public final void stopSelf(int startId) {
         if (mActivityManager == null) {
             return;
