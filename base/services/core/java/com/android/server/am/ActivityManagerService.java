@@ -19260,6 +19260,7 @@ public final class ActivityManagerService extends ActivityManagerNative
         }
 
         // Add to the sticky list if requested.
+        //如果广播有sticky属性
         if (sticky) {
             if (checkPermission(android.Manifest.permission.BROADCAST_STICKY,
                     callingPid, callingUid)
@@ -19382,6 +19383,7 @@ public final class ActivityManagerService extends ActivityManagerNative
                 + " replacePending=" + replacePending);
 
         int NR = registeredReceivers != null ? registeredReceivers.size() : 0;
+        //非ordered广播
         if (!ordered && NR > 0) {
             // If we are not serializing this broadcast, then send the
             // registered receivers separately so they don't wait for the
@@ -19389,6 +19391,7 @@ public final class ActivityManagerService extends ActivityManagerNative
             //LEUI-START [REQ][LEUI-9047] [fengzihua] added: for inner broadcastQueue
             final BroadcastQueue queue = broadcastQueueForIntent(intent, isInnerBg);
             //LEUI-END [REQ][LEUI-9047] [fengzihua]
+            //创建包含registeredReceivers的BroadcastRecord r
             BroadcastRecord r = new BroadcastRecord(queue, intent, callerApp,
                     callerPackage, callingPid, callingUid, resolvedType, requiredPermissions,
                     appOp, brOptions, registeredReceivers, resultTo, resultCode, resultData,
@@ -19410,7 +19413,9 @@ public final class ActivityManagerService extends ActivityManagerNative
             } else {
                 final boolean replaced = replacePending && queue.replaceParallelBroadcastLocked(r);
                 if (!replaced) {
+                    //保存该BroadcastRecord
                     queue.enqueueParallelBroadcastLocked(r);
+                    //※调度一次广播发送
                     queue.scheduleBroadcastsLocked();
                 }
             }
