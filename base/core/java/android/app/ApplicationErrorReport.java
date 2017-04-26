@@ -588,8 +588,8 @@ public class ApplicationErrorReport implements Parcelable {
         }
     }
 
-    public static final Parcelable.Creator<ApplicationErrorReport> CREATOR
-            = new Parcelable.Creator<ApplicationErrorReport>() {
+    public static final Creator<ApplicationErrorReport> CREATOR
+            = new Creator<ApplicationErrorReport>() {
         public ApplicationErrorReport createFromParcel(Parcel source) {
             return new ApplicationErrorReport(source);
         }

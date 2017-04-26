@@ -148,7 +148,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * work properly:</p>
  * <ul>
  *     <li>The AsyncTask class must be loaded on the UI thread. This is done
- *     automatically as of {@link android.os.Build.VERSION_CODES#JELLY_BEAN}.</li>
+ *     automatically as of {@link Build.VERSION_CODES#JELLY_BEAN}.</li>
  *     <li>The task instance must be created on the UI thread.</li>
  *     <li>{@link #execute} must be invoked on the UI thread.</li>
  *     <li>Do not call {@link #onPreExecute()}, {@link #onPostExecute},
@@ -169,12 +169,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * <h2>Order of execution</h2>
  * <p>When first introduced, AsyncTasks were executed serially on a single background
- * thread. Starting with {@link android.os.Build.VERSION_CODES#DONUT}, this was changed
+ * thread. Starting with {@link Build.VERSION_CODES#DONUT}, this was changed
  * to a pool of threads allowing multiple tasks to operate in parallel. Starting with
- * {@link android.os.Build.VERSION_CODES#HONEYCOMB}, tasks are executed on a single
+ * {@link Build.VERSION_CODES#HONEYCOMB}, tasks are executed on a single
  * thread to avoid common application errors caused by parallel execution.</p>
  * <p>If you truly want parallel execution, you can invoke
- * {@link #executeOnExecutor(java.util.concurrent.Executor, Object[])} with
+ * {@link #executeOnExecutor(Executor, Object[])} with
  * {@link #THREAD_POOL_EXECUTOR}.</p>
  */
 public abstract class AsyncTask<Params, Progress, Result> {
@@ -539,9 +539,9 @@ public abstract class AsyncTask<Params, Progress, Result> {
      * <p>Note: this function schedules the task on a queue for a single background
      * thread or pool of threads depending on the platform version.  When first
      * introduced, AsyncTasks were executed serially on a single background thread.
-     * Starting with {@link android.os.Build.VERSION_CODES#DONUT}, this was changed
+     * Starting with {@link Build.VERSION_CODES#DONUT}, this was changed
      * to a pool of threads allowing multiple tasks to operate in parallel. Starting
-     * {@link android.os.Build.VERSION_CODES#HONEYCOMB}, tasks are back to being
+     * {@link Build.VERSION_CODES#HONEYCOMB}, tasks are back to being
      * executed on a single thread to avoid common application errors caused
      * by parallel execution.  If you truly want parallel execution, you can use
      * the {@link #executeOnExecutor} version of this method
@@ -555,9 +555,9 @@ public abstract class AsyncTask<Params, Progress, Result> {
      * @return This instance of AsyncTask.
      *
      * @throws IllegalStateException If {@link #getStatus()} returns either
-     *         {@link AsyncTask.Status#RUNNING} or {@link AsyncTask.Status#FINISHED}.
+     *         {@link Status#RUNNING} or {@link Status#FINISHED}.
      *
-     * @see #executeOnExecutor(java.util.concurrent.Executor, Object[])
+     * @see #executeOnExecutor(Executor, Object[])
      * @see #execute(Runnable)
      */
     @MainThread
@@ -595,7 +595,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
      * @return This instance of AsyncTask.
      *
      * @throws IllegalStateException If {@link #getStatus()} returns either
-     *         {@link AsyncTask.Status#RUNNING} or {@link AsyncTask.Status#FINISHED}.
+     *         {@link Status#RUNNING} or {@link Status#FINISHED}.
      *
      * @see #execute(Object[])
      */
@@ -633,7 +633,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
      * information on the order of execution.
      *
      * @see #execute(Object[])
-     * @see #executeOnExecutor(java.util.concurrent.Executor, Object[])
+     * @see #executeOnExecutor(Executor, Object[])
      */
     @MainThread
     public static void execute(Runnable runnable) {

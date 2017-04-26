@@ -691,7 +691,7 @@ public final class ActivityManagerService extends ActivityManagerNative
      * is the pid of the caller who requested it (we hold a death
      * link on it).
      */
-    abstract class ForegroundToken implements IBinder.DeathRecipient {
+    abstract class ForegroundToken implements DeathRecipient {
         int pid;
         IBinder token;
     }
@@ -1391,7 +1391,7 @@ public final class ActivityManagerService extends ActivityManagerNative
 
     private UserManagerService mUserManager;
 
-    private final class AppDeathRecipient implements IBinder.DeathRecipient {
+    private final class AppDeathRecipient implements DeathRecipient {
         final ProcessRecord mApp;
         final int mPid;
         final IApplicationThread mAppThread;
@@ -2382,7 +2382,7 @@ public final class ActivityManagerService extends ActivityManagerNative
                 updateLruProcessLocked(app, false, null);
                 updateOomAdjLocked();
             }
-        } catch (PackageManager.NameNotFoundException e) {
+        } catch (NameNotFoundException e) {
             throw new RuntimeException(
                     "Unable to find android system package", e);
         }
@@ -2536,7 +2536,7 @@ public final class ActivityManagerService extends ActivityManagerNative
         Slog.i(TAG, "Memory class: " + ActivityManager.staticGetMemoryClass());
 
         mHandlerThread = new ServiceThread(TAG,
-                android.os.Process.THREAD_PRIORITY_FOREGROUND, false /*allowIo*/);
+                Process.THREAD_PRIORITY_FOREGROUND, false /*allowIo*/);
         mHandlerThread.start();
         mHandler = new MainHandler(mHandlerThread.getLooper());
         mUiHandler = new UiHandler();
@@ -9646,7 +9646,7 @@ public final class ActivityManagerService extends ActivityManagerNative
                     if (localPackageInfo == null) {
                         return null;
                     }
-                } catch (PackageManager.NameNotFoundException localNameNotFoundException) {
+                } catch (NameNotFoundException localNameNotFoundException) {
                     return null;
                 }
                 return localPackageInfo.signatures;
@@ -13089,7 +13089,7 @@ public final class ActivityManagerService extends ActivityManagerNative
                     + android.Manifest.permission.SET_ACTIVITY_WATCHER);
         }
 
-        final IBinder.DeathRecipient death = new DeathRecipient() {
+        final DeathRecipient death = new DeathRecipient() {
             @Override
             public void binderDied() {
                 synchronized (this) {
@@ -13286,9 +13286,9 @@ public final class ActivityManagerService extends ActivityManagerNative
                 String vers = dis.readUTF();
                 String codename = dis.readUTF();
                 String build = dis.readUTF();
-                if (android.os.Build.VERSION.RELEASE.equals(vers)
-                        && android.os.Build.VERSION.CODENAME.equals(codename)
-                        && android.os.Build.VERSION.INCREMENTAL.equals(build)) {
+                if (Build.VERSION.RELEASE.equals(vers)
+                        && Build.VERSION.CODENAME.equals(codename)
+                        && Build.VERSION.INCREMENTAL.equals(build)) {
                     int num = dis.readInt();
                     while (num > 0) {
                         num--;
@@ -13320,9 +13320,9 @@ public final class ActivityManagerService extends ActivityManagerNative
             fos = new FileOutputStream(file);
             dos = new DataOutputStream(new BufferedOutputStream(fos, 2048));
             dos.writeInt(LAST_PREBOOT_DELIVERED_FILE_VERSION);
-            dos.writeUTF(android.os.Build.VERSION.RELEASE);
-            dos.writeUTF(android.os.Build.VERSION.CODENAME);
-            dos.writeUTF(android.os.Build.VERSION.INCREMENTAL);
+            dos.writeUTF(Build.VERSION.RELEASE);
+            dos.writeUTF(Build.VERSION.CODENAME);
+            dos.writeUTF(Build.VERSION.INCREMENTAL);
             dos.writeInt(list.size());
             for (int i=0; i<list.size(); i++) {
                 dos.writeUTF(list.get(i).getPackageName());
@@ -19752,7 +19752,7 @@ public final class ActivityManagerService extends ActivityManagerNative
                     className, STOCK_PM_FLAGS);
                 ai = AppGlobals.getPackageManager().getApplicationInfo(
                         ii.targetPackage, STOCK_PM_FLAGS, userId);
-            } catch (PackageManager.NameNotFoundException e) {
+            } catch (NameNotFoundException e) {
             } catch (RemoteException e) {
             }
             if (ii == null) {
@@ -23313,7 +23313,7 @@ public final class ActivityManagerService extends ActivityManagerNative
 
     /**
      * An implementation of IAppTask, that allows an app to manage its own tasks via
-     * {@link android.app.ActivityManager.AppTask}.  We keep track of the callingUid to ensure that
+     * {@link ActivityManager.AppTask}.  We keep track of the callingUid to ensure that
      * only the process that calls getAppTasks() can call the AppTask methods.
      */
     class AppTaskImpl extends IAppTask.Stub {
@@ -23534,7 +23534,7 @@ public final class ActivityManagerService extends ActivityManagerNative
                         String now = sDateFormat.format(new Date());
                         String _path = HPROF_SAVE_PATH + now + "_systemServer.hprof";
                         createTraceDir(HPROF_SAVE_PATH, "systemServer.hprof", true);
-                        android.os.Debug.dumpHprofData(_path);
+                        Debug.dumpHprofData(_path);
                         Slog.w(TAG, "end dumpHrpofData!!! save path = " + _path);
                     } catch (IOException e) {
                         Slog.w(TAG, "dumpHrpofData  error!" + e);
@@ -23572,7 +23572,7 @@ public final class ActivityManagerService extends ActivityManagerNative
         try{
             String _path = HPROF_SAVE_PATH +"systemServer.hprof";
             createTraceDir(HPROF_SAVE_PATH, "systemServer.hprof", true);
-            android.os.Debug.dumpHprofData(_path);
+            Debug.dumpHprofData(_path);
             Slog.w(TAG, "end dumpHrpofData!!! save path = " + _path);
         }catch(IOException e) {
             Slog.w(TAG, "dumpHrpofData  error!"+e);
