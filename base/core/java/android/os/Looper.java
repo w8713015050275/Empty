@@ -136,6 +136,7 @@ public final class Looper {
             Message msg = queue.next(); // might block
             if (msg == null) {
                 // No message indicates that the message queue is quitting.
+                //移除掉所有的消息就返回了
                 return;
             }
 

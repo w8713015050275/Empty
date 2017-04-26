@@ -237,6 +237,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
             mTasks.offer(new Runnable() {
                 public void run() {
                     try {
+                        //执行mWorker的call()
                         r.run();
                     } finally {
                         scheduleNext();
@@ -615,6 +616,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
 
         mStatus = Status.RUNNING;
 
+        //主线程执行
         onPreExecute();
 
         mWorker.mParams = params;

@@ -200,6 +200,7 @@ public class Handler {
             throw new RuntimeException(
                 "Can't create handler inside thread that has not called Looper.prepare()");
         }
+        //MessageQueue 由Looper维护
         mQueue = mLooper.mQueue;
         mCallback = callback;
         mAsynchronous = async;
@@ -597,6 +598,9 @@ public class Handler {
             Log.w("Looper", e.getMessage(), e);
             return false;
         }
+        //将Message入队到MessageQueue中,sendMessage的本质,就是将msg入队到Looper维护的msg queue
+        //Looper所在的线程通过loop不断的从msg queue中取msg;然后给handler的dispatchMessage()处理
+        //dispatchMessage()中处理msg
         return enqueueMessage(queue, msg, uptimeMillis);
     }
 
