@@ -623,6 +623,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
         //执行SERIAL_EXECUTOR的execute():调度执行任务
         exec.execute(mFuture);
 
+        //test
         return this;
     }
 
