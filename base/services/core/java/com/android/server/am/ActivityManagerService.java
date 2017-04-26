@@ -19383,7 +19383,7 @@ public final class ActivityManagerService extends ActivityManagerNative
                 + " replacePending=" + replacePending);
 
         int NR = registeredReceivers != null ? registeredReceivers.size() : 0;
-        //非ordered广播
+        //非ordered广播,动态注册的广播
         if (!ordered && NR > 0) {
             // If we are not serializing this broadcast, then send the
             // registered receivers separately so they don't wait for the
@@ -19426,6 +19426,7 @@ public final class ActivityManagerService extends ActivityManagerNative
 
         // Merge into one list.
         int ir = 0;
+        //receivers为静态注册的receiver
         if (receivers != null) {
             // A special case for PACKAGE_ADDED: do not allow the package
             // being added to see this broadcast.  This prevents them from
@@ -19488,6 +19489,7 @@ public final class ActivityManagerService extends ActivityManagerNative
                 }
             }
         }
+        //将动态注册的添加到receivers = 静态 + 动态
         while (ir < NR) {
             if (receivers == null) {
                 receivers = new ArrayList();
@@ -19510,6 +19512,7 @@ public final class ActivityManagerService extends ActivityManagerNative
             //LEUI-START [REQ][LEUI-9047] [fengzihua] added: for inner broadcastQueue
             BroadcastQueue queue = broadcastQueueForIntent(intent, isInnerBg);
             //LEUI-END [REQ][LEUI-9047] [fengzihua]
+            //创建包含(静态 + 动态) receiver的BroadcastRecord
             BroadcastRecord r = new BroadcastRecord(queue, intent, callerApp,
                     callerPackage, callingPid, callingUid, resolvedType,
                     requiredPermissions, appOp, brOptions, receivers, resultTo, resultCode,
@@ -19557,6 +19560,7 @@ public final class ActivityManagerService extends ActivityManagerNative
                      }
                 }
                 //[+LEUI]end
+                //入队BroadcastRecord,并发送msg BROADCAST_INTENT_MSG
                 queue.enqueueOrderedBroadcastLocked(r);
                 queue.scheduleBroadcastsLocked();
             }
