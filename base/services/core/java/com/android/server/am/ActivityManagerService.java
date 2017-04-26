@@ -19512,7 +19512,7 @@ public final class ActivityManagerService extends ActivityManagerNative
             //LEUI-START [REQ][LEUI-9047] [fengzihua] added: for inner broadcastQueue
             BroadcastQueue queue = broadcastQueueForIntent(intent, isInnerBg);
             //LEUI-END [REQ][LEUI-9047] [fengzihua]
-            //通过Intent创建包含(静态 + 动态) receiver的BroadcastRecord
+            //创建包含(静态 + 动态) receiver的BroadcastRecord
             BroadcastRecord r = new BroadcastRecord(queue, intent, callerApp,
                     callerPackage, callingPid, callingUid, resolvedType,
                     requiredPermissions, appOp, brOptions, receivers, resultTo, resultCode,
