@@ -841,6 +841,7 @@ public final class LoadedApk {
 
         //这俩有啥联系吧
         final IIntentReceiver.Stub mIIntentReceiver;
+        //广播接收器
         final BroadcastReceiver mReceiver;
         final Context mContext;
         final Handler mActivityThread;

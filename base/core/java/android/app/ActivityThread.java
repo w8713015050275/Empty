@@ -1489,6 +1489,7 @@ public final class ActivityThread {
                     break;
                 case SERVICE_ARGS:
                     Trace.traceBegin(Trace.TRACE_TAG_ACTIVITY_MANAGER, "serviceStart");
+                    //service的start()方法
                     handleServiceArgs((ServiceArgsData)msg.obj);
                     Trace.traceEnd(Trace.TRACE_TAG_ACTIVITY_MANAGER);
                     break;
@@ -2934,6 +2935,7 @@ public final class ActivityThread {
         }
     }
 
+    //创建Service
     private void handleCreateService(CreateServiceData data) {
         // If we are getting ready to gc after going to the background, well
         // we are back active so skip it.
@@ -2944,6 +2946,7 @@ public final class ActivityThread {
         Service service = null;
         try {
             java.lang.ClassLoader cl = packageInfo.getClassLoader();
+            //创建对应的Service对象
             service = (Service) cl.loadClass(data.info.name).newInstance();
         } catch (Exception e) {
             if (!mInstrumentation.onException(service, e)) {
@@ -2962,6 +2965,7 @@ public final class ActivityThread {
             Application app = packageInfo.makeApplication(false, mInstrumentation);
             service.attach(context, this, data.info.name, data.token, app,
                     ActivityManagerNative.getDefault());
+            //Service的onCreate()
             service.onCreate();
             mServices.put(data.token, service);
             try {
@@ -3095,6 +3099,7 @@ public final class ActivityThread {
                 }
                 int res;
                 if (!data.taskRemoved) {
+                    //
                     res = s.onStartCommand(data.args, data.flags, data.startId);
                 } else {
                     s.onTaskRemoved(data.args);

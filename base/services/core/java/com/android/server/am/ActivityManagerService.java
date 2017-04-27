@@ -18634,6 +18634,7 @@ public final class ActivityManagerService extends ActivityManagerNative
         return didSomething;
     }
 
+    //注册IIntentReceiver关联的BroadcastReceiver对象
     public Intent registerReceiver(IApplicationThread caller, String callerPackage,
             IIntentReceiver receiver, IntentFilter filter, String permission, int userId) {
         enforceNotIsolatedCaller("registerReceiver");
@@ -18748,7 +18749,7 @@ public final class ActivityManagerService extends ActivityManagerNative
                     }
                     rl.linkedToDeath = true;
                 }
-                //把对应receiver的ReceiverList放到mRegisteredReceivers HashMap中
+                //把对应receiver的ReceiverList(filter 的列表)放到mRegisteredReceivers HashMap中
                 mRegisteredReceivers.put(receiver.asBinder(), rl);
             } else if (rl.uid != callingUid) {
                 throw new IllegalArgumentException(
@@ -18766,7 +18767,7 @@ public final class ActivityManagerService extends ActivityManagerNative
             //BroadcastFilter继承自IntentFilter; 可能有多个receiver对应同一个Filter
             BroadcastFilter bf = new BroadcastFilter(filter, rl, callerPackage,
                     permission, callingUid, userId);
-            //receiver list 和filter关联
+            //filter list 添加个filter
             rl.add(bf);
             if (!bf.debugCheck()) {
                 Slog.w(TAG, "==> For Dynamic broadcast");
@@ -18936,6 +18937,7 @@ public final class ActivityManagerService extends ActivityManagerNative
         return receivers;
     }
 
+    //发送广播
     private final int broadcastIntentLocked(ProcessRecord callerApp,
             String callerPackage, Intent intent, String resolvedType,
             IIntentReceiver resultTo, int resultCode, String resultData,
@@ -18953,6 +18955,7 @@ public final class ActivityManagerService extends ActivityManagerNative
         //LEUI-END [REQ][LEUI-9047] [fengzihua]
 
         // By default broadcasts do not go to stopped apps.
+        //默认广播是不会发送给停止的package
         intent.addFlags(Intent.FLAG_EXCLUDE_STOPPED_PACKAGES);
 
         // If we have not finished booting, don't allow this to launch new processes.
@@ -19599,6 +19602,7 @@ public final class ActivityManagerService extends ActivityManagerNative
         return intent;
     }
 
+    //发送广播
     public final int broadcastIntent(IApplicationThread caller,
             Intent intent, String resolvedType, IIntentReceiver resultTo,
             int resultCode, String resultData, Bundle resultExtras,
@@ -19612,9 +19616,10 @@ public final class ActivityManagerService extends ActivityManagerNative
             final int callingPid = Binder.getCallingPid();
             final int callingUid = Binder.getCallingUid();
             final long origId = Binder.clearCallingIdentity();
+            //发送广播
             int res = broadcastIntentLocked(callerApp,
                     callerApp != null ? callerApp.info.packageName : null,
-                    intent, resolvedType, resultTo, resultCode, resultData, resultExtras,
+                    intent/*广播*/, resolvedType, resultTo, resultCode, resultData, resultExtras,
                     requiredPermissions, appOp, null, serialized, sticky,
                     callingPid, callingUid, userId);
             Binder.restoreCallingIdentity(origId);
