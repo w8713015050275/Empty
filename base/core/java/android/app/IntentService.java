@@ -141,13 +141,14 @@ public abstract class IntentService extends Service {
      */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        //反正都是调到service的onStart去发送一个Message
         onStart(intent, startId);
         return mRedelivery ? START_REDELIVER_INTENT : START_NOT_STICKY;
     }
 
     @Override
     public void onDestroy() {
-        //停止线程
+        //停止线程的loop循环
         mServiceLooper.quit();
     }
 
