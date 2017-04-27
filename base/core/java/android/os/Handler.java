@@ -90,15 +90,19 @@ public class Handler {
     /**
      * Handle system messages here.
      */
+    //分发消息进行处理
     public void dispatchMessage(Message msg) {
         if (msg.callback != null) {
+            //先处理Message的callback中的代码
             handleCallback(msg);
         } else {
             if (mCallback != null) {
+                //处理Handler中mCallback的回调
                 if (mCallback.handleMessage(msg)) {
                     return;
                 }
             }
+            //最后调用Handler中的handleMessage()
             handleMessage(msg);
         }
     }
@@ -195,6 +199,7 @@ public class Handler {
             }
         }
 
+        //当前线程的Looper
         mLooper = Looper.myLooper();
         if (mLooper == null) {
             throw new RuntimeException(
@@ -202,6 +207,7 @@ public class Handler {
         }
         //MessageQueue 由Looper维护
         mQueue = mLooper.mQueue;
+        //Handler中的回调
         mCallback = callback;
         mAsynchronous = async;
     }
@@ -590,6 +596,7 @@ public class Handler {
      *         the looper is quit before the delivery time of the message
      *         occurs then the message will be dropped.
      */
+    //不管调用post还是send最终都会将Message对象入队到Looper的MessageQueue中
     public boolean sendMessageAtTime(Message msg, long uptimeMillis) {
         MessageQueue queue = mQueue;
         if (queue == null) {
@@ -628,10 +635,12 @@ public class Handler {
     }
 
     private boolean enqueueMessage(MessageQueue queue, Message msg, long uptimeMillis) {
+        //Message的发送对象为当前的Handler对象
         msg.target = this;
         if (mAsynchronous) {
             msg.setAsynchronous(true);
         }
+        //msg放入Looper维护的queue中
         return queue.enqueueMessage(msg, uptimeMillis);
     }
 
@@ -726,6 +735,7 @@ public class Handler {
         }
     }
 
+    //通过Runnable构造一个Message对象
     private static Message getPostMessage(Runnable r) {
         Message m = Message.obtain();
         m.callback = r;

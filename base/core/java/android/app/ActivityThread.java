@@ -186,7 +186,9 @@ public final class ActivityThread {
     static IPackageManager sPackageManager;
 
     final ApplicationThread mAppThread = new ApplicationThread();
+    //此时应该为null
     final Looper mLooper = Looper.myLooper();
+    //默认会使用当前线程的Looper
     final H mH = new H();
     final ArrayMap<IBinder, ActivityClientRecord> mActivities = new ArrayMap<>();
     // List of new activities (via ActivityRecord.nextIdle) that should
@@ -582,6 +584,7 @@ public final class ActivityThread {
 
     private native void dumpGraphicsInfo(FileDescriptor fd);
 
+    //与AMS通信的client端
     private class ApplicationThread extends ApplicationThreadNative {
         private static final String DB_INFO_FORMAT = "  %8s %8s %14s %14s  %s";
 
@@ -5607,7 +5610,7 @@ public final class ActivityThread {
 
         Process.setArgV0("<pre-initialized>");
 
-        //主进程的Looper
+        //准备一个主进程的Looper
         Looper.prepareMainLooper();
 
         ActivityThread thread = new ActivityThread();
@@ -5625,6 +5628,8 @@ public final class ActivityThread {
 
         // End of event ActivityThreadMain.
         Trace.traceEnd(Trace.TRACE_TAG_ACTIVITY_MANAGER);
+        //开始Looper的循环~~,不断从MessageQueue取msg,给Handler处理
+        //给哪个Handler???
         Looper.loop();
 
         throw new RuntimeException("Main thread loop unexpectedly exited");

@@ -87,7 +87,7 @@ public final class Looper {
         if (sThreadLocal.get() != null) {
             throw new RuntimeException("Only one Looper may be created per thread");
         }
-        //给当前线程的ThreadLocal添加Looper对象
+        //给Handler所在的线程的ThreadLocal添加Looper对象
         sThreadLocal.set(new Looper(quitAllowed));
     }
 
@@ -97,6 +97,7 @@ public final class Looper {
      * is created by the Android environment, so you should never need
      * to call this function yourself.  See also: {@link #prepare()}
      */
+    //为主线程准备的Looper
     public static void prepareMainLooper() {
         prepare(false);
         synchronized (Looper.class) {
@@ -110,6 +111,7 @@ public final class Looper {
     /**
      * Returns the application's main looper, which lives in the main thread of the application.
      */
+    //获得应用主Looper,这个Looper存活在应用的主线程中
     public static Looper getMainLooper() {
         synchronized (Looper.class) {
             return sMainLooper;
@@ -136,7 +138,7 @@ public final class Looper {
             Message msg = queue.next(); // might block
             if (msg == null) {
                 // No message indicates that the message queue is quitting.
-                //移除掉所有的消息就返回了
+                //※移除掉所有的消息就返回了
                 return;
             }
 
@@ -147,6 +149,7 @@ public final class Looper {
                         msg.callback + ": " + msg.what);
             }
 
+            //loop()取到msg后分发给Handler
             msg.target.dispatchMessage(msg);
 
             if (logging != null) {
@@ -173,7 +176,8 @@ public final class Looper {
      * null if the calling thread is not associated with a Looper.
      */
     public static @Nullable Looper myLooper() {
-        //从当前线程的ThreadLocal中获得一个Looper对象
+        //从Handler所在的线程的ThreadLocal中获得一个Looper对象
+        //Looper和线程 绑定了
         return sThreadLocal.get();
     }
 
