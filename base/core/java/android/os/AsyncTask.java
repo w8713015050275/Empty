@@ -190,6 +190,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
         private final AtomicInteger mCount = new AtomicInteger(1);
 
         public Thread newThread(Runnable r) {
+            //只是加了个线程的名字
             return new Thread(r, "AsyncTask #" + mCount.getAndIncrement());
         }
     };

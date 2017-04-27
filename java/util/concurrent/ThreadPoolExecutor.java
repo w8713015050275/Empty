@@ -609,7 +609,8 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
         Worker(Runnable firstTask) {
             setState(-1); // inhibit interrupts until runWorker
             this.firstTask = firstTask;
-            //根据线程工厂去创建线程
+            //根据线程工厂去创建线程, 注意Worker实现了Runnable接口,即把Runnable传给thread
+            //thread在start时,去执行Runnable的run()
             this.thread = getThreadFactory().newThread(this);
         }
 
@@ -923,7 +924,15 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
         boolean workerAdded = false;
         Worker w = null;
         try {
+
+            /*Worker(Runnable firstTask) {
+                setState(-1); // inhibit interrupts until runWorker
+                this.firstTask = firstTask;
+                //根据线程工厂去创建线程
+                this.thread = getThreadFactory().newThread(this);
+            }*/
             w = new Worker(firstTask);
+            //取出来Worker中的线程对象
             final Thread t = w.thread;
             if (t != null) {
                 final ReentrantLock mainLock = this.mainLock;
@@ -948,7 +957,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
                     mainLock.unlock();
                 }
                 if (workerAdded) {
-                    //启动线程
+                    //启动线程对象
                     t.start();
                     workerStarted = true;
                 }
@@ -1196,6 +1205,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
                               TimeUnit unit,
                               BlockingQueue<Runnable> workQueue) {
         this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue,
+                //Executors提供一个默认的线程工厂
              Executors.defaultThreadFactory(), defaultHandler);
     }
 
@@ -1224,6 +1234,8 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      * @throws NullPointerException if {@code workQueue}
      *         or {@code threadFactory} is null
      */
+    //根据初始化参数创建一个 线程池执行器
+    //实现execute()方法, 通过该方法将任务提交到线程池
     public ThreadPoolExecutor(int corePoolSize,
                               int maximumPoolSize,
                               long keepAliveTime,
@@ -1296,13 +1308,13 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      * @throws NullPointerException if {@code workQueue}
      *         or {@code threadFactory} or {@code handler} is null
      */
-    public ThreadPoolExecutor(int corePoolSize,
-                              int maximumPoolSize,
-                              long keepAliveTime,
+    public ThreadPoolExecutor(int corePoolSize, //核心线程数目
+                              int maximumPoolSize, //最大线程数目
+                              long keepAliveTime, //超时存活时长
                               TimeUnit unit,
-                              BlockingQueue<Runnable> workQueue,
-                              ThreadFactory threadFactory,
-                              RejectedExecutionHandler handler) {
+                              BlockingQueue<Runnable> workQueue, //任务队列
+                              ThreadFactory threadFactory, //线程工厂
+                              RejectedExecutionHandler handler /*任务不能正常执行的处理器*/) {
         if (corePoolSize < 0 ||
             maximumPoolSize <= 0 ||
             maximumPoolSize < corePoolSize ||
@@ -1357,15 +1369,18 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
          */
         int c = ctl.get();
         if (workerCountOf(c) < corePoolSize) {
+            //线程数目小于corePoolSize,直接new一个线程
+            //根据Runnable创建Worker对象
             if (addWorker(command, true))
                 return;
             c = ctl.get();
         }
-        if (isRunning(c) && workQueue.offer(command)) {
+        if (isRunning(c) && workQueue.offer(command)/*入队Runnable*/) {
             int recheck = ctl.get();
             if (! isRunning(recheck) && remove(command))
                 reject(command);
             else if (workerCountOf(recheck) == 0)
+                //添加Runnable到非核心线程池中
                 addWorker(null, false);
         }
         else if (!addWorker(command, false))
