@@ -2965,7 +2965,7 @@ public final class ActivityThread {
             Application app = packageInfo.makeApplication(false, mInstrumentation);
             service.attach(context, this, data.info.name, data.token, app,
                     ActivityManagerNative.getDefault());
-            //Service的onCreate()
+            //回调Service的onCreate()
             service.onCreate();
             mServices.put(data.token, service);
             try {
@@ -3089,6 +3089,7 @@ public final class ActivityThread {
         }
     }
 
+    // 处理onCreate后面的生命周期
     private void handleServiceArgs(ServiceArgsData data) {
         Service s = mServices.get(data.token);
         if (s != null) {
@@ -3099,7 +3100,7 @@ public final class ActivityThread {
                 }
                 int res;
                 if (!data.taskRemoved) {
-                    //
+                    //回调onStart()
                     res = s.onStartCommand(data.args, data.flags, data.startId);
                 } else {
                     s.onTaskRemoved(data.args);

@@ -18148,6 +18148,7 @@ public final class ActivityManagerService extends ActivityManagerNative
         }
     }
 
+    //② 调用AMS的startService
     @Override
     public ComponentName startService(IApplicationThread caller, Intent service,
             String resolvedType, String callingPackage, int userId)
@@ -18168,6 +18169,7 @@ public final class ActivityManagerService extends ActivityManagerNative
             final int callingPid = Binder.getCallingPid();
             final int callingUid = Binder.getCallingUid();
             final long origId = Binder.clearCallingIdentity();
+            //③调用ActiveServices的startServiceLocked
             ComponentName res = mServices.startServiceLocked(caller, service,
                     resolvedType, callingPid, callingUid, callingPackage, userId);
             Binder.restoreCallingIdentity(origId);

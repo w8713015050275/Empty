@@ -1223,6 +1223,7 @@ class ContextImpl extends Context {
         }
     }
 
+    //startService
     @Override
     public ComponentName startService(Intent service) {
         warnIfCallingFromSystemProcess();
@@ -1240,10 +1241,12 @@ class ContextImpl extends Context {
         return startServiceCommon(service, user);
     }
 
+    //通过Intent startService
     private ComponentName startServiceCommon(Intent service, UserHandle user) {
         try {
             validateServiceIntent(service);
             service.prepareToLeaveProcess();
+            //①转入到AMS启动服务
             ComponentName cn = ActivityManagerNative.getDefault().startService(
                 mMainThread.getApplicationThread(), service, service.resolveTypeIfNeeded(
                             getContentResolver()), getOpPackageName(), user.getIdentifier());

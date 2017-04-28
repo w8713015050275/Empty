@@ -350,6 +350,8 @@ public final class ActiveServices {
         return getServiceMap(callingUser).mShadowServicesByName;
     }
     //[+LEUI]end
+
+    //④调用ActiveServices的startServiceLocked()
     ComponentName startServiceLocked(IApplicationThread caller, Intent service, String resolvedType,
             int callingPid, int callingUid, String callingPackage, int userId)
             throws TransactionTooLargeException {
@@ -392,6 +394,7 @@ public final class ActiveServices {
                     ? res.permission : "private to package");
         }
 
+        //ServiceRecord 服务记录
         ServiceRecord r = res.record;
 
         if (!mAm.getUserManagerLocked().exists(r.userId)) {
@@ -484,9 +487,23 @@ public final class ActiveServices {
             }
         }
 
+        //⑤ ActiveServices的startServiceInnerLocked()
         return startServiceInnerLocked(smap, service, r, callerFg, addToStarting);
     }
 
+
+    //here
+
+    /**
+     *
+     * @param smap
+     * @param service 启动的ServiceIntent
+     * @param r  ServiceRecord, 服务记录
+     * @param callerFg
+     * @param addToStarting
+     * @return
+     * @throws TransactionTooLargeException
+     */
     ComponentName startServiceInnerLocked(ServiceMap smap, Intent service, ServiceRecord r,
             boolean callerFg, boolean addToStarting) throws TransactionTooLargeException {
         ProcessStats.ServiceState stracker = r.getTracker();
@@ -497,6 +514,7 @@ public final class ActiveServices {
         synchronized (r.stats.getBatteryStats()) {
             r.stats.startRunningLocked();
         }
+        //⑥ bringUpServiceLocked() ☆
         String error = bringUpServiceLocked(r, service.getFlags(), callerFg, false);
         if (error != null) {
             return new ComponentName("!!", error);
@@ -1596,12 +1614,14 @@ public final class ActiveServices {
         }
     }
 
+    //
     private final String bringUpServiceLocked(ServiceRecord r, int intentFlags, boolean execInFg,
             boolean whileRestarting) throws TransactionTooLargeException {
         //Slog.i(TAG, "Bring up service:");
         //r.dump("  ");
 
         if (r.app != null && r.app.thread != null) {
+            //onStart流程
             sendServiceArgsLocked(r, execInFg, false);
             return null;
         }
@@ -1670,6 +1690,8 @@ public final class ActiveServices {
             if (app != null && app.thread != null) {
                 try {
                     app.addPackage(r.appInfo.packageName, r.appInfo.versionCode, mAm.mProcessStats);
+
+                    // 真正创建启动service的地方 realStartServiceLocked()
                     realStartServiceLocked(r, app, execInFg);
                     return null;
                 } catch (TransactionTooLargeException e) {
@@ -1736,6 +1758,7 @@ public final class ActiveServices {
         }
     }
 
+    // 重要!!!
     private final void realStartServiceLocked(ServiceRecord r,
             ProcessRecord app, boolean execInFg) throws RemoteException {
         if (app.thread == null) {
@@ -1766,6 +1789,7 @@ public final class ActiveServices {
             }
             mAm.ensurePackageDexOpt(r.serviceInfo.packageName);
             app.forceProcessStateUpTo(ActivityManager.PROCESS_STATE_SERVICE);
+            //回调到应用进程去创建service实力, onCreate()
             app.thread.scheduleCreateService(r, r.serviceInfo,
                     mAm.compatibilityInfoForPackageLocked(r.serviceInfo.applicationInfo),
                     app.repProcState);
@@ -1811,7 +1835,7 @@ public final class ActiveServices {
                     null, null));
         }
 
-        //
+        //走onCreate()后面的生命周期
         sendServiceArgsLocked(r, execInFg, true);
 
         if (r.delayed) {
@@ -1831,6 +1855,7 @@ public final class ActiveServices {
         }
     }
 
+    //回调onCreate后面的生命周期方法
     private final void sendServiceArgsLocked(ServiceRecord r, boolean execInFg,
             boolean oomAdjusted) throws TransactionTooLargeException {
         final int N = r.pendingStarts.size();
@@ -1876,6 +1901,8 @@ public final class ActiveServices {
                     si.intent.setArg2(r.executeFg?1:0);
                 }
                 //[-LEUI-24824]
+                //又他娘的回调到应用进程了, onStart流程
+                //什么时候创建Service呢???
                 r.app.thread.scheduleServiceArgs(r, si.taskRemoved, si.id, flags, si.intent);
             } catch (TransactionTooLargeException e) {
                 if (DEBUG_SERVICE) Slog.v(TAG_SERVICE, "Transaction too large: intent="
