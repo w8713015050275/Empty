@@ -808,6 +808,7 @@ public final class LoadedApk {
                 mDispatcher = new WeakReference<ReceiverDispatcher>(rd);
                 mStrongRef = strong ? rd : null;
             }
+            //调用到这里
             public void performReceive(Intent intent, int resultCode, String data,
                     Bundle extras, boolean ordered, boolean sticky, int sendingUser) {
                 ReceiverDispatcher rd = mDispatcher.get();
@@ -895,6 +896,7 @@ public final class LoadedApk {
                     intent.setExtrasClassLoader(cl);
                     setExtrasClassLoader(cl);
                     receiver.setPendingResult(this);
+                    //当当当 这里回调Receiver的onReceive()
                     receiver.onReceive(mContext, intent);
                 } catch (Exception e) {
                     if (mRegistered && ordered) {
@@ -979,6 +981,7 @@ public final class LoadedApk {
             }
             Args args = new Args(intent, resultCode, data, extras, ordered,
                     sticky, sendingUser);
+            //Handler的post(): 把args Runnable post到app主线程
             if (!mActivityThread.post(args)) {
                 if (mRegistered && ordered) {
                     IActivityManager mgr = ActivityManagerNative.getDefault();

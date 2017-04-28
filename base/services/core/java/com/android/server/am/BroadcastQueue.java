@@ -171,6 +171,7 @@ public final class BroadcastQueue {
                 case BROADCAST_INTENT_MSG: {
                     if (DEBUG_BROADCAST) Slog.v(
                             TAG_BROADCAST, "Received BROADCAST_INTENT_MSG");
+                    //处理广播
                     processNextBroadcast(true);
                 } break;
                 case BROADCAST_TIMEOUT_MSG: {
@@ -207,6 +208,7 @@ public final class BroadcastQueue {
     BroadcastQueue(ActivityManagerService service, Handler handler,
             String name, long timeoutPeriod, boolean allowDelayBehindServices) {
         mService = service;
+        //handler 默认主线程
         mHandler = new BroadcastHandler(handler.getLooper());
         mQueueName = name;
         mTimeoutPeriod = timeoutPeriod;
@@ -394,7 +396,7 @@ public final class BroadcastQueue {
         if (mBroadcastsScheduled) {
             return;
         }
-        //fa
+        //mHandler默认主线程: AMS所在的进程的主线程
         mHandler.sendMessage(mHandler.obtainMessage(BROADCAST_INTENT_MSG, this));
         mBroadcastsScheduled = true;
     }
@@ -486,6 +488,7 @@ public final class BroadcastQueue {
         }
     }
 
+    //重要!!!
     private static void performReceiveLocked(ProcessRecord app, IIntentReceiver receiver,
             Intent intent, int resultCode, String data, Bundle extras,
             boolean ordered, boolean sticky, int sendingUser) throws RemoteException {
@@ -501,11 +504,13 @@ public final class BroadcastQueue {
                 throw new RemoteException("app.thread must not be null");
             }
         } else {
+
             receiver.performReceive(intent, resultCode, data, extras, ordered,
                     sticky, sendingUser);
         }
     }
 
+    //发送给动态注册的BR
     private void deliverToRegisteredReceiverLocked(BroadcastRecord r,
             BroadcastFilter filter, boolean ordered) {
         boolean skip = false;
@@ -640,6 +645,7 @@ public final class BroadcastQueue {
                 if (DEBUG_BROADCAST_LIGHT) Slog.i(TAG_BROADCAST,
                         "Delivering to " + filter + " : " + r);
                 if (ordered) checkTime(r.receiverTime,"before performReceiveLocked "+r+" "+r.receiver ,getTimeoutToCheck());
+                //接收到广播
                 performReceiveLocked(filter.receiverList.app, filter.receiverList.receiver,
                         new Intent(r.intent), r.resultCode, r.resultData,
                         r.resultExtras, r.ordered, r.initialSticky, r.userId);
@@ -713,6 +719,7 @@ public final class BroadcastQueue {
                     if (DEBUG_BROADCAST) Slog.v(TAG_BROADCAST,
                             "Delivering non-ordered on [" + mQueueName + "] to registered "
                             + target + ": " + r);
+                    //处理动态注册的BR
                     deliverToRegisteredReceiverLocked(r, (BroadcastFilter)target, false);
                 }
                 addBroadcastToHistoryLocked(r);
