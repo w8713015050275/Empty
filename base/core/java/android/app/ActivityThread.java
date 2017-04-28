@@ -2983,6 +2983,7 @@ public final class ActivityThread {
         }
     }
 
+    //AMS回调回来 bind 服务
     private void handleBindService(BindServiceData data) {
         Service s = mServices.get(data.token);
         if (DEBUG_SERVICE)
@@ -2993,7 +2994,9 @@ public final class ActivityThread {
                 data.intent.prepareToEnterProcess();
                 try {
                     if (!data.rebind) {
+                        //onBind的生命周期
                         IBinder binder = s.onBind(data.intent);
+                        //进入连接ServiceConnection的回调中
                         ActivityManagerNative.getDefault().publishService(
                                 data.token, data.intent, binder);
                     } else {

@@ -1000,6 +1000,7 @@ public final class LoadedApk {
                 sd = map.get(c);
             }
             if (sd == null) {
+                //c : ServiceConnection对象 不具备跨进程通信的功能
                 sd = new ServiceDispatcher(c, context, handler, flags);
                 if (map == null) {
                     map = new ArrayMap<ServiceConnection, ServiceDispatcher>();
@@ -1009,6 +1010,7 @@ public final class LoadedApk {
             } else {
                 sd.validate(context, handler);
             }
+            //返回InnerConnection对象,可以跨进程
             return sd.getIServiceConnection();
         }
     }
@@ -1081,6 +1083,7 @@ public final class LoadedApk {
             IBinder.DeathRecipient deathMonitor;
         }
 
+        //该对象在客户端调用bindService时传给AMS
         private static class InnerConnection extends IServiceConnection.Stub {
             final WeakReference<ServiceDispatcher> mDispatcher;
 
@@ -1088,6 +1091,7 @@ public final class LoadedApk {
                 mDispatcher = new WeakReference<ServiceDispatcher>(sd);
             }
 
+            //InnerConnection 可以跨进程调用;可以从AMS 调回 应用进程的sd.connected()
             public void connected(ComponentName name, IBinder service) throws RemoteException {
                 ServiceDispatcher sd = mDispatcher.get();
                 if (sd != null) {
@@ -1099,9 +1103,18 @@ public final class LoadedApk {
         private final ArrayMap<ComponentName, ConnectionInfo> mActiveConnections
             = new ArrayMap<ComponentName, ConnectionInfo>();
 
+        /**
+         *
+         * @param conn ServiceConnection对象, 创建ServiceDispather时传入
+         * @param context
+         * @param activityThread
+         * @param flags
+         */
+        //该对象位于应用进程
         ServiceDispatcher(ServiceConnection conn,
                 Context context, Handler activityThread, int flags) {
             mIServiceConnection = new InnerConnection(this);
+
             mConnection = conn;
             mContext = context;
             mActivityThread = activityThread;
@@ -1160,6 +1173,7 @@ public final class LoadedApk {
             return mUnbindLocation;
         }
 
+        //InnerConnection 调用
         public void connected(ComponentName name, IBinder service) {
             if (mActivityThread != null) {
                 mActivityThread.post(new RunConnection(name, service, 0));
@@ -1238,7 +1252,7 @@ public final class LoadedApk {
             }
             // If there is a new service, it is now connected.
             if (service != null) {
-                //成功bind service
+                //成功bind service,回调ServiceConnection
                 mConnection.onServiceConnected(name, service);
             }
         }

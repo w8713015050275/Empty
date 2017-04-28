@@ -1289,6 +1289,7 @@ class ContextImpl extends Context {
         }
     }
 
+    //service 绑定流程入口
     @Override
     public boolean bindService(Intent service, ServiceConnection conn,
             int flags) {
@@ -1310,6 +1311,7 @@ class ContextImpl extends Context {
             throw new IllegalArgumentException("connection is null");
         }
         if (mPackageInfo != null) {
+            //返回一个InnerConnection
             sd = mPackageInfo.getServiceDispatcher(conn, getOuterContext(),
                     mMainThread.getHandler(), flags);
         } else {
@@ -1324,6 +1326,7 @@ class ContextImpl extends Context {
                 flags |= BIND_WAIVE_PRIORITY;
             }
             service.prepareToLeaveProcess();
+            //然后转入AMS进行bind操作;把具有跨进程通信的sd: InnerConnection 传给AMS
             int res = ActivityManagerNative.getDefault().bindService(
                 mMainThread.getApplicationThread(), getActivityToken(), service,
                 service.resolveTypeIfNeeded(getContentResolver()),
