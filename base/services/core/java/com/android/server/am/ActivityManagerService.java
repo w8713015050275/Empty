@@ -18387,6 +18387,21 @@ public final class ActivityManagerService extends ActivityManagerNative
                         == PackageManager.PERMISSION_GRANTED;
     }
 
+    //AMS 绑定服务的入口
+
+    /**
+     *
+     * @param caller
+     * @param token
+     * @param service
+     * @param resolvedType
+     * @param connection  IServiceConnetcion对象,实际是个InnerConnection对象, 继承了binder,可以跨进程通信
+     * @param flags
+     * @param callingPackage
+     * @param userId
+     * @return
+     * @throws TransactionTooLargeException
+     */
     public int bindService(IApplicationThread caller, IBinder token, Intent service,
             String resolvedType, IServiceConnection connection, int flags, String callingPackage,
             int userId) throws TransactionTooLargeException {
@@ -18402,6 +18417,8 @@ public final class ActivityManagerService extends ActivityManagerNative
         }
 
         synchronized(this) {
+            //ActiveServices.bindServiceLocked(); connection: InnerConnection
+            //service: Intent
             return mServices.bindServiceLocked(caller, token, service,
                     resolvedType, connection, flags, callingPackage, userId);
         }
@@ -18423,6 +18440,7 @@ public final class ActivityManagerService extends ActivityManagerNative
             if (!(token instanceof ServiceRecord)) {
                 throw new IllegalArgumentException("Invalid service token");
             }
+            //
             mServices.publishServiceLocked((ServiceRecord)token, intent, service);
         }
     }

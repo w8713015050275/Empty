@@ -794,6 +794,19 @@ public final class ActiveServices {
         return false;
     }
 
+    /**
+     *
+     * @param caller
+     * @param token
+     * @param service Intent
+     * @param resolvedType
+     * @param connection  InnerConnection实例,跨进程通信的
+     * @param flags
+     * @param callingPackage
+     * @param userId
+     * @return
+     * @throws TransactionTooLargeException
+     */
     int bindServiceLocked(IApplicationThread caller, IBinder token, Intent service,
             String resolvedType, IServiceConnection connection, int flags,
             String callingPackage, int userId) throws TransactionTooLargeException {
@@ -889,6 +902,7 @@ public final class ActiveServices {
                     s.appInfo.uid, s.name, s.processName);
 
             AppBindRecord b = s.retrieveAppBindingLocked(service, callerApp);
+            //构造一个ConnectionRecord 对象
             ConnectionRecord c = new ConnectionRecord(b, activity,
                     connection, flags, clientLabel, clientIntent);
 
@@ -922,6 +936,7 @@ public final class ActiveServices {
 
             if ((flags&Context.BIND_AUTO_CREATE) != 0) {
                 s.lastActivity = SystemClock.uptimeMillis();
+                //创建Service 并调用onCreate生命周期
                 if (bringUpServiceLocked(s, service.getFlags(), callerFg, false) != null) {
                     return 0;
                 }
@@ -957,6 +972,7 @@ public final class ActiveServices {
                 // and the service had previously asked to be told when
                 // rebound, then do so.
                 if (b.intent.apps.size() == 1 && b.intent.doRebind) {
+                    //bind的生命周期
                     requestServiceBindingLocked(s, b.intent, callerFg, true);
                 }
             } else if (!b.intent.requested) {
@@ -1000,6 +1016,7 @@ public final class ActiveServices {
                             }
                             if (DEBUG_SERVICE) Slog.v(TAG_SERVICE, "Publishing to: " + c);
                             try {
+                                //InnerConnection的connected()
                                 c.conn.connected(r.name, service);
                             } catch (Exception e) {
                                 Slog.w(TAG, "Failure sending service " + r.name +
@@ -1350,6 +1367,7 @@ public final class ActiveServices {
             try {
                 bumpServiceExecutingLocked(r, execInFg, "bind");
                 r.app.forceProcessStateUpTo(ActivityManager.PROCESS_STATE_SERVICE);
+                //回调到应用进程
                 r.app.thread.scheduleBindService(r, i.intent.getIntent(), rebind,
                         r.app.repProcState);
                 if (!rebind) {
