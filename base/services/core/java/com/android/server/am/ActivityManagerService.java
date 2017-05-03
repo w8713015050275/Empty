@@ -6960,6 +6960,7 @@ public final class ActivityManagerService extends ActivityManagerNative
         }
     }
 
+    //重要!!!
     private final boolean attachApplicationLocked(IApplicationThread thread,
             int pid) {
 
@@ -7098,6 +7099,7 @@ public final class ActivityManagerService extends ActivityManagerNative
             }
             ProfilerInfo profilerInfo = profileFile == null ? null
                     : new ProfilerInfo(profileFile, profileFd, samplingInterval, profileAutoStop);
+            //回调回app进程
             thread.bindApplication(processName, appInfo, providers, app.instrumentationClass,
                     profilerInfo, app.instrumentationArguments, app.instrumentationWatcher,
                     app.instrumentationUiAutomationConnection, testMode, enableOpenGlTrace,
@@ -7196,6 +7198,7 @@ public final class ActivityManagerService extends ActivityManagerNative
         synchronized (this) {
             int callingPid = Binder.getCallingPid();
             final long origId = Binder.clearCallingIdentity();
+            //具体实现方法
             attachApplicationLocked(thread, callingPid);
             Binder.restoreCallingIdentity(origId);
         }

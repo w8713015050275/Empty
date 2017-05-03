@@ -875,6 +875,7 @@ public final class ActivityThread {
             data.config = config;
             data.compatInfo = compatInfo;
             data.initProfilerInfo = profilerInfo;
+            //发送BIND_APPLICATION
             sendMessage(H.BIND_APPLICATION, data);
         }
 
@@ -4641,6 +4642,7 @@ public final class ActivityThread {
         }
     }
 
+    //初始化contentProvider
     private void handleBindApplication(AppBindData data) {
         mBoundApplication = data;
         mConfiguration = new Configuration(data.config);
@@ -4716,6 +4718,7 @@ public final class ActivityThread {
         }
         updateDefaultDensity();
 
+        //创建ContextImpl对象
         final ContextImpl appContext = ContextImpl.createAppContext(this, data.info);
         if (!Process.isIsolated()) {
             final File cacheDir = appContext.getCacheDir();
@@ -4900,6 +4903,7 @@ public final class ActivityThread {
             if (!data.restrictedBackupMode) {
                 List<ProviderInfo> providers = data.providers;
                 if (providers != null) {
+                    //安装ContentProviders
                     installContentProviders(app, providers);
                     // For process that contains content providers, we want to
                     // ensure that the JIT is enabled "at some point".
@@ -4919,6 +4923,7 @@ public final class ActivityThread {
             }
 
             try {
+                //初始化Application
                 mInstrumentation.callApplicationOnCreate(app);
             } catch (Exception e) {
                 if (!mInstrumentation.onException(app, e)) {
@@ -5454,10 +5459,12 @@ public final class ActivityThread {
             });
             android.ddm.DdmHandleAppName.setAppName("<pre-initialized>",
                                                     UserHandle.myUserId());
+            //把ActivityThread丢给虚拟机,知道是谁异常了
             RuntimeInit.setApplicationObject(mAppThread.asBinder());
             final IActivityManager mgr = ActivityManagerNative.getDefault();
             try {
                 //把ApplicationThread传给AMS
+                //转入到AMS所在进程 然后从AMS回调到ActivityThread的bindApplication()
                 mgr.attachApplication(mAppThread);
             } catch (RemoteException ex) {
                 // Ignore
@@ -5623,6 +5630,7 @@ public final class ActivityThread {
         Looper.prepareMainLooper();
 
         ActivityThread thread = new ActivityThread();
+        //application 初始化的一些方法
         thread.attach(false);
 
         if (sMainThreadHandler == null) {
