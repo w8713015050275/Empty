@@ -2350,6 +2350,8 @@ public final class ActivityManagerService extends ActivityManagerNative
 
     public void setSystemProcess() {
         try {
+            //添加ActiivtyManagerService;
+            //public static void addService(String name, IBinder service, boolean allowIsolated)
             ServiceManager.addService(Context.ACTIVITY_SERVICE, this, true);
             ServiceManager.addService(ProcessStats.SERVICE_NAME, mProcessStats);
             ServiceManager.addService("meminfo", new MemBinder(this));
