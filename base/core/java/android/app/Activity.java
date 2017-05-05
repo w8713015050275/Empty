@@ -766,7 +766,9 @@ public class Activity extends ContextThemeWrapper
     private int mTitleColor = 0;
 
     // we must have a handler before the FragmentController is constructed
+    //主线程中的Handler对象
     final Handler mHandler = new Handler();
+    //创建一个FragmentController
     final FragmentController mFragments = FragmentController.createController(new HostCallbacks());
 
     // Most recent call to requestVisibleBehind().
@@ -1932,7 +1934,9 @@ public class Activity extends ContextThemeWrapper
      * Return the FragmentManager for interacting with fragments associated
      * with this activity.
      */
+    //返回和Activity交互的FragmentManager
     public FragmentManager getFragmentManager() {
+        //FragmentController的方法,获得一个FragmentManager对象
         return mFragments.getFragmentManager();
     }
 
@@ -6675,8 +6679,11 @@ public class Activity extends ContextThemeWrapper
         fragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
+    //把callback: 本activity,传递给FragmentController
     class HostCallbacks extends FragmentHostCallback<Activity> {
         public HostCallbacks() {
+            //Activity的方法;跟当前activity的实例关联
+            //调用FragmentHostCallback的构造方法
             super(Activity.this /*activity*/);
         }
 
