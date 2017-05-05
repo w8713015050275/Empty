@@ -195,6 +195,9 @@ class ContextImpl extends Context {
         return (ContextImpl)context;
     }
 
+    //我们想要引用插件中的资源时,就要重写这个东西,让AssetManager加载更多的dex
+    //在自定义的Activity中重写该方法获得 自定义的AssetMananger
+    //activity中重写的是ContextWrapper的方法,Wrapper调用的是ContextImpl的方法
     @Override
     public AssetManager getAssets() {
         return getResources().getAssets();
