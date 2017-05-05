@@ -232,6 +232,7 @@ public final class ActivityThread {
     // holds their own lock.  Thus you MUST NEVER call back into the activity manager
     // or window manager or anything that depends on them while holding this lock.
     // These LoadedApk are only valid for the userId that we're running as.
+    //维护了dex的信息
     final ArrayMap<String, WeakReference<LoadedApk>> mPackages
             = new ArrayMap<String, WeakReference<LoadedApk>>();
     final ArrayMap<String, WeakReference<LoadedApk>> mResourcePackages
@@ -2382,6 +2383,7 @@ public final class ActivityThread {
 
         Activity activity = null;
         try {
+            //r: ActivityClientRecord
             java.lang.ClassLoader cl = r.packageInfo.getClassLoader();
             //通过component使用Instrumentation创建对应的Activity实例
             activity = mInstrumentation.newActivity(
