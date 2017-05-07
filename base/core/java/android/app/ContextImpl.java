@@ -572,6 +572,7 @@ class ContextImpl extends Context {
         if ((mode & MODE_ENABLE_WRITE_AHEAD_LOGGING) != 0) {
             flags |= SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING;
         }
+        //调用SQLiteDatabase的静态方法打开数据库
         SQLiteDatabase db = SQLiteDatabase.openDatabase(f.getPath(), factory, flags, errorHandler);
         setFilePermissionsFromMode(f.getPath(), mode, 0);
         return db;
